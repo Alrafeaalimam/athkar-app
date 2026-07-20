@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>حصن المسلم — أذكار</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0D3A2C">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F1E2;
+    --paper: #FFFDF7;
+    --green-deep: #0D3A2C;
+    --green-mid: #175C46;
+    --green-soft: #E4EEE8;
+    --gold: #C79A3E;
+    --gold-light: #E7CD8C;
+    --gold-glow: rgba(199,154,62,0.35);
+    --ink: #1C2420;
+    --ink-soft: #5B6862;
+    --line: #E4DCC6;
+    --shadow: 0 10px 30px rgba(13,58,44,0.10);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%; background:var(--green-deep);}
+  body{
+    font-family:'Cairo', sans-serif;
+    color:var(--ink);
+    display:flex; justify-content:center;
+    overflow:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  #app{
+    width:100%; max-width:480px; height:100dvh;
+    background:var(--bg);
+    position:relative;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    box-shadow: 0 0 60px rgba(0,0,0,0.35);
+  }
+
+  .screen{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .screen.active{display:flex;}
+
+  /* ---------- decorative motif ---------- */
+  .arabesque-divider{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    margin: 6px 0 18px;
+    color: var(--gold);
+    opacity:0.85;
+  }
+  .arabesque-divider::before, .arabesque-divider::after{
+    content:""; height:1px; width:36px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .arabesque-divider svg{width:16px; height:16px; opacity:0.9;}
+
+  /* ================= WELCOME SCREEN ================= */
+  #welcome{
+    background:
+      radial-gradient(circle at 50% 0%, #164A38 0%, var(--green-deep) 55%, #082018 100%);
+    color:#F3ECD8;
+    align-items:center;
+    text-align:center;
+    padding: 34px 24px 26px;
+    justify-content:space-between;
+  }
+  .welcome-top{width:100%;}
+  .brand-mark{
+    font-family:'Amiri', serif; font-weight:700; font-size:15px;
+    letter-spacing:2px; color: var(--gold-light);
+    text-transform:uppercase; opacity:0.9; margin-bottom:4px;
+  }
+  .brand-title{
+    font-family:'Amiri', serif; font-weight:700; font-size:34px;
+    color:#FBF3DC; margin: 4px 0 2px;
+    text-shadow: 0 2px 18px rgba(231,205,140,0.25);
+  }
+  .brand-sub{font-size:13px; color:#BFD3C7; font-weight:400;}
+
+  .photo-frame{
+    width:150px; height:150px; border-radius:50%;
+    margin: 22px auto 6px;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 40%, #1F5A44, #0D3527);
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 0 6px rgba(199,154,62,0.14), 0 0 40px var(--gold-glow);
+    animation: glow 3.2s ease-in-out infinite;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  @keyframes glow{
+    0%,100%{ box-shadow: 0 0 0 6px rgba(199,154,62,0.10), 0 0 26px var(--gold-glow); }
+    50%{ box-shadow: 0 0 0 8px rgba(199,154,62,0.18), 0 0 46px var(--gold-glow); }
+  }
+  .photo-frame img{width:100%; height:100%; object-fit:cover; border-radius:50%;}
+  .photo-frame .hint{
+    font-size:11px; color:var(--gold-light); line-height:1.5; padding:0 14px;
+  }
+  .photo-frame .plus{font-size:22px; color:var(--gold-light); display:block; margin-bottom:4px;}
+  #photoInput{display:none;}
+
+  .dedication{
+    margin-top:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    border: 1px solid rgba(231,205,140,0.35);
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    position:relative;
+  }
+  .dedication::before{
+    content:"﴾"; position:absolute; top:-14px; right:14px; font-size:22px; color:var(--gold);
+    background:var(--green-deep); padding:0 6px;
+  }
+  .dedication::after{
+    content:"﴿"; position:absolute; bottom:-14px; left:14px; font-size:22px; color:var(--gold);
+    background:var(--green-deep); padding:0 6px;
+  }
+  .dedication .eyebrow{
+    font-size:11px; color:var(--gold-light); letter-spacing:1px; margin-bottom:10px; opacity:0.85;
+  }
+  .dedication .names{
+    font-family:'Amiri', serif; font-size:19px; line-height:2.1; color:#FBF3DC;
+  }
+  .dedication .names b{color: var(--gold-light); font-weight:700;}
+  .dedication .dua-line{
+    margin-top:10px; font-size:13.5px; color:#CFE0D6; font-family:'Amiri', serif; line-height:1.9;
+  }
+
+  .welcome-bottom{width:100%;}
+  .enter-btn{
+    width:100%; border:none; border-radius:16px;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    color: var(--green-deep); font-family:'Cairo', sans-serif; font-weight:800; font-size:16px;
+    padding:15px 0; margin-top:22px;
+    box-shadow: 0 10px 26px rgba(199,154,62,0.35);
+    cursor:pointer;
+  }
+  .enter-btn:active{transform:scale(0.98);}
+  .welcome-foot{margin-top:10px; font-size:11px; color:#8FAA9C;}
+
+  /* ================= SHARED HEADER ================= */
+  .top-bar{
+    padding: 18px 20px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    background: var(--green-deep);
+    color:#F3ECD8;
+    position:sticky; top:0; z-index:5;
+    border-bottom: 1px solid rgba(199,154,62,0.35);
+  }
+  .top-bar h1{font-family:'Amiri', serif; font-size:20px; margin:0; font-weight:700; color:#FBF3DC;}
+  .top-bar .back{
+    width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--gold-light);
+    font-size:16px; border:1px solid rgba(199,154,62,0.35);
+  }
+  .top-bar .spacer{width:32px;}
+
+  /* ================= HOME ================= */
+  #home-content{padding: 18px 18px 90px;}
+  .greeting-card{
+    background: linear-gradient(135deg, var(--green-mid), var(--green-deep));
+    color:#F3ECD8; border-radius:20px; padding:20px; margin-bottom:18px;
+    box-shadow: var(--shadow); position:relative; overflow:hidden;
+  }
+  .greeting-card::after{
+    content:""; position:absolute; left:-30px; bottom:-30px; width:120px; height:120px;
+    border:1px solid rgba(231,205,140,0.25); border-radius:50%;
+  }
+  .greeting-card .g-eyebrow{font-size:11px; color:var(--gold-light); letter-spacing:1px;}
+  .greeting-card h2{font-family:'Amiri', serif; margin:6px 0 4px; font-size:22px;}
+  .greeting-card p{margin:0; font-size:12.5px; color:#C9DAD0; line-height:1.7;}
+
+  .grid-cats{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;}
+  .cat-card{
+    background:var(--paper); border-radius:16px; padding:16px 14px;
+    box-shadow: var(--shadow); cursor:pointer; border:1px solid var(--line);
+    display:flex; flex-direction:column; gap:8px; position:relative;
+  }
+  .cat-card .icon{
+    width:38px; height:38px; border-radius:10px; background:var(--green-soft);
+    display:flex; align-items:center; justify-content:center; color:var(--green-deep); font-size:18px;
+  }
+  .cat-card .title{font-weight:700; font-size:14.5px; color:var(--ink);}
+  .cat-card .sub{font-size:11px; color:var(--ink-soft);}
+  .cat-card .badge{
+    position:absolute; top:12px; left:12px; background:var(--gold); color:#fff;
+    font-size:10px; padding:2px 7px; border-radius:20px; font-weight:700;
+  }
+
+  .section-label{
+    font-size:12px; font-weight:700; color:var(--green-deep); margin: 4px 2px 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .section-label::before{content:""; width:3px; height:14px; background:var(--gold); border-radius:2px;}
+
+  /* ================= LIST SCREENS (athkar categories) ================= */
+  #category-content, #dua-content{padding:16px 16px 90px;}
+  .progress-wrap{
+    background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:16px;
+    display:flex; align-items:center; gap:12px; box-shadow:var(--shadow);
+  }
+  .progress-ring{position:relative; width:46px; height:46px; flex:none;}
+  .progress-ring svg{transform:rotate(-90deg);}
+  .progress-ring circle{fill:none; stroke-width:5;}
+  .progress-ring .bg{stroke:var(--line);}
+  .progress-ring .fg{stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 0.3s;}
+  .progress-ring .num{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:800; color:var(--green-deep);
+  }
+  .progress-text{font-size:12.5px; color:var(--ink-soft); line-height:1.6;}
+  .progress-text b{color:var(--green-deep);}
+
+  .thikr-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:18px 16px;
+    margin-bottom:12px; box-shadow:var(--shadow); cursor:pointer; transition:transform .12s, opacity .2s;
+    position:relative;
+  }
+  .thikr-card:active{transform:scale(0.985);}
+  .thikr-card.done{opacity:0.55;}
+  .thikr-card .txt{
+    font-family:'Amiri', serif; font-size:18px; line-height:2.15; color:var(--ink); text-align:right;
+  }
+  .thikr-card .meta{
+    display:flex; justify-content:space-between; align-items:center; margin-top:12px;
+  }
+  .thikr-card .virtue{font-size:11.5px; color:var(--ink-soft); line-height:1.7; max-width:75%;}
+  .count-pill{
+    background:var(--green-deep); color:var(--gold-light); font-weight:800; font-size:13px;
+    border-radius:20px; padding:6px 14px; min-width:42px; text-align:center; flex:none;
+  }
+  .thikr-card.done .count-pill{background:var(--gold); color:#fff;}
+  .thikr-card.done::before{
+    content:"✓"; position:absolute; top:12px; left:14px; color:var(--gold); font-weight:900; font-size:14px;
+  }
+
+  .finish-banner{
+    text-align:center; padding:22px 16px; background:linear-gradient(135deg, var(--green-mid), var(--green-deep));
+    color:#F3ECD8; border-radius:18px; margin-bottom:14px; display:none;
+  }
+  .finish-banner.show{display:block;}
+  .finish-banner .big{font-family:'Amiri', serif; font-size:20px; color:var(--gold-light); margin-bottom:4px;}
+  .finish-banner p{margin:0; font-size:12px; color:#C9DAD0;}
+
+  /* ================= TASBIH ================= */
+  #tasbih-content{
+    padding: 14px 20px 100px; display:flex; flex-direction:column; align-items:center;
+  }
+  .phrase-scroll{
+    display:flex; gap:8px; overflow-x:auto; width:100%; padding-bottom:6px; margin-bottom:8px;
+    scrollbar-width:none;
+  }
+  .phrase-scroll::-webkit-scrollbar{display:none;}
+  .phrase-chip{
+    flex:none; padding:9px 16px; border-radius:20px; background:var(--paper); border:1px solid var(--line);
+    font-size:12.5px; font-weight:700; color:var(--ink-soft); cursor:pointer; white-space:nowrap;
+  }
+  .phrase-chip.active{background:var(--green-deep); color:var(--gold-light); border-color:var(--green-deep);}
+
+  .tasbih-display{
+    font-family:'Amiri', serif; font-size:24px; text-align:center; color:var(--ink); margin: 14px 0 6px;
+    min-height:36px;
+  }
+  .tasbih-target-label{font-size:11.5px; color:var(--ink-soft); margin-bottom:18px;}
+
+  .counter-ring{
+    position:relative; width:220px; height:220px; margin: 8px 0 20px;
+  }
+  .counter-ring svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .counter-ring circle{fill:none; stroke-width:10;}
+  .counter-ring .bg{stroke:var(--line);}
+  .counter-ring .fg{stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 0.25s;}
+  .counter-btn{
+    position:absolute; inset:14px; border-radius:50%; border:none; cursor:pointer;
+    background: radial-gradient(circle at 35% 30%, var(--green-mid), var(--green-deep));
+    color:#FBF3DC; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 6px rgba(199,154,62,0.18), 0 10px 30px rgba(13,58,44,0.35);
+  }
+  .counter-btn:active{transform:scale(0.97);}
+  .counter-btn .count-num{font-size:46px; font-weight:800;}
+  .counter-btn .count-label{font-size:11px; color:var(--gold-light); margin-top:2px;}
+
+  .tasbih-actions{display:flex; gap:10px; width:100%; margin-top:6px;}
+  .ghost-btn{
+    flex:1; padding:12px 0; border-radius:14px; border:1px solid var(--line); background:var(--paper);
+    color:var(--ink-soft); font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .ghost-btn:active{background:var(--green-soft);}
+  .tasbih-stats{
+    display:flex; gap:10px; width:100%; margin-top:16px;
+  }
+  .stat-box{
+    flex:1; background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center;
+  }
+  .stat-box .v{font-weight:800; font-size:18px; color:var(--green-deep);}
+  .stat-box .l{font-size:10.5px; color:var(--ink-soft); margin-top:2px;}
+
+  /* ================= DUA CARDS ================= */
+  .dua-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:18px 16px;
+    margin-bottom:12px; box-shadow:var(--shadow);
+  }
+  .dua-card .cat-tag{
+    display:inline-block; background:var(--green-soft); color:var(--green-deep); font-size:10.5px; font-weight:700;
+    padding:3px 10px; border-radius:20px; margin-bottom:10px;
+  }
+  .dua-card .txt{font-family:'Amiri', serif; font-size:17.5px; line-height:2.2; color:var(--ink);}
+  .dua-card .translit{font-size:11.5px; color:var(--ink-soft); margin-top:8px; line-height:1.7;}
+
+  /* ================= BOTTOM NAV ================= */
+  .bottom-nav{
+    position:absolute; bottom:0; left:0; right:0; height:64px; background:var(--paper);
+    border-top:1px solid var(--line); display:flex; z-index:6;
+    box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    color:var(--ink-soft); cursor:pointer; font-size:10.5px; font-weight:700;
+  }
+  .nav-item svg{width:20px; height:20px;}
+  .nav-item.active{color:var(--green-deep);}
+  .nav-item.active svg{color:var(--gold);}
+
+  .hide-nav{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= WELCOME SCREEN ================= -->
+  <section class="screen active" id="welcome">
+    <div class="welcome-top">
+      <div class="brand-mark">بسم الله الرحمن الرحيم</div>
+      <div class="brand-title">حِصْن المسلم</div>
+      <div class="brand-sub">تطبيق الأذكار والتسبيح والأدعية</div>
+
+      <label class="photo-frame" id="photoFrame">
+        <span id="photoPlaceholder">
+          <span class="plus">＋</span>
+          <span class="hint">اضغط لإضافة صورة</span>
+        </span>
+        <input type="file" id="photoInput" accept="image/*">
+      </label>
+
+      <div class="dedication">
+        <div class="eyebrow">هذا العمل صدقة جارية بإذن الله إلى روح</div>
+        <div class="names">
+          الوالدة المربية الشريفة<br>
+          <b>زَبيدة الشيخ عوض الجيد</b><br>
+          والأخ والصديق والصاحب<br>
+          <b>الزهاوي يوسف مصطفى</b>
+        </div>
+        <div class="dua-line">اللهم اغفر لهما وارحمهما، وأسكنهما فسيح جناتك،<br>وتقبل منهما صالح الأعمال</div>
+      </div>
+    </div>
+
+    <div class="welcome-bottom">
+      <button class="enter-btn" id="enterBtn">دخول التطبيق</button>
+      <div class="welcome-foot">وأشرك في الأجر كل من قرأ وذكر الله بهذا التطبيق</div>
+    </div>
+  </section>
+
+  <!-- ================= HOME ================= -->
+  <section class="screen" id="home">
+    <div class="top-bar">
+      <div class="spacer"></div>
+      <h1>الرئيسية</h1>
+      <div class="spacer"></div>
+    </div>
+    <div class="screen" style="position:static; display:flex;" id="home-content">
+      <div class="greeting-card">
+        <div class="g-eyebrow" id="homeGreetTime">السلام عليكم ورحمة الله</div>
+        <h2>اذكر الله يذكرك</h2>
+        <p>﴿ فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ ﴾ — سورة البقرة</p>
+      </div>
+
+      <div class="section-label">الأذكار اليومية</div>
+      <div class="grid-cats" id="homeCatsMain"></div>
+
+      <div class="section-label">أذكار المناسبات</div>
+      <div class="grid-cats" id="homeCatsMisc"></div>
+    </div>
+    <nav class="bottom-nav" id="nav1"></nav>
+  </section>
+
+  <!-- ================= CATEGORY (ATHKAR LIST) ================= -->
+  <section class="screen" id="category">
+    <div class="top-bar">
+      <div class="back" onclick="goHome()">›</div>
+      <h1 id="categoryTitle">الأذكار</h1>
+      <div class="spacer"></div>
+    </div>
+    <div id="category-content"></div>
+    <nav class="bottom-nav hide-nav"></nav>
+  </section>
+
+  <!-- ================= TASBIH ================= -->
+  <section class="screen" id="tasbih">
+    <div class="top-bar">
+      <div class="spacer"></div>
+      <h1>السبحة الإلكترونية</h1>
+      <div class="spacer"></div>
+    </div>
+    <div id="tasbih-content">
+      <div class="phrase-scroll" id="phraseScroll"></div>
+      <div class="tasbih-target-label" id="tasbihTargetLabel">الهدف: 33</div>
+
+      <div class="counter-ring">
+        <svg viewBox="0 0 220 220">
+          <circle class="bg" cx="110" cy="110" r="100"></circle>
+          <circle class="fg" id="ringFg" cx="110" cy="110" r="100"></circle>
+        </svg>
+        <button class="counter-btn" id="counterBtn">
+          <span class="count-num" id="countNum">0</span>
+          <span class="count-label">اضغط للعدّ</span>
+        </button>
+      </div>
+
+      <div class="tasbih-actions">
+        <button class="ghost-btn" id="resetBtn">تصفير العدّاد</button>
+        <button class="ghost-btn" id="targetBtn">تغيير الهدف</button>
+      </div>
+
+      <div class="tasbih-stats">
+        <div class="stat-box"><div class="v" id="statToday">0</div><div class="l">تسبيح اليوم</div></div>
+        <div class="stat-box"><div class="v" id="statTotal">0</div><div class="l">الإجمالي الكلي</div></div>
+      </div>
+    </div>
+    <nav class="bottom-nav" id="nav2"></nav>
+  </section>
+
+  <!-- ================= DUAS ================= -->
+  <section class="screen" id="duas">
+    <div class="top-bar">
+      <div class="spacer"></div>
+      <h1>الأدعية</h1>
+      <div class="spacer"></div>
+    </div>
+    <div id="dua-content"></div>
+    <nav class="bottom-nav" id="nav3"></nav>
+  </section>
+
+</div>
+
+<script>
+/* ============ ICONS ============ */
+const ICONS = {
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`,
+  athkar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"/><path d="M4 19a2 2 0 0 0 2 2h14"/><path d="M8 7h8M8 11h6"/></svg>`,
+  tasbih: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2.4"/><circle cx="12" cy="3.5" r="1.6"/><circle cx="19" cy="7" r="1.6"/><circle cx="21" cy="15" r="1.6"/><circle cx="16" cy="20.5" r="1.6"/><circle cx="8" cy="20.5" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="5" cy="7" r="1.6"/></svg>`,
+  dua: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11c0-4 2.5-7 5-9 2.5 2 5 5 5 9a5 5 0 0 1-10 0Z"/><path d="M12 15v6M8 21h8"/></svg>`,
+  sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`,
+  moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>`,
+  bed: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18M5 10V7a2 2 0 0 1 2-2h3v5"/></svg>`,
+  wake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="14" r="7"/><path d="M9 2h6M12 10v4l3 2"/></svg>`,
+  prayer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  mosque: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M4 21v-8l3-3 3 3v8M11 21v-6a1 1 0 0 1 2 0v6M14 21v-8l3-3 3 3v8M12 4v3"/></svg>`,
+  food: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v7a2 2 0 0 0 4 0V2M8 9v13M18 2c-2 2-3 4-3 7a3 3 0 0 0 3 3v9"/></svg>`,
+  travel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l18-8-8 18-2-8-8-2Z"/></svg>`,
+  misc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>`
+};
+
+/* ============ ATHKAR DATA ============ */
+const ATHKAR = {
+  morning: { title:"أذكار الصباح", icon:"sun", items:[
+    {txt:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", count:1, virtue:"يقال عند الصباح"},
+    {txt:"اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ", count:1},
+    {txt:"آيَةُ الْكُرْسِيِّ: اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ", count:1, virtue:"من قالها حين يصبح أُجير من الجن حتى يمسي"},
+    {txt:"قُلْ هُوَ اللَّهُ أَحَدٌ (سورة الإخلاص كاملة)", count:3},
+    {txt:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (سورة الفلق كاملة)", count:3},
+    {txt:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ (سورة الناس كاملة)", count:3},
+    {txt:"اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ", count:4},
+    {txt:"اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ", count:3},
+    {txt:"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ، وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، لَا إِلَهَ إِلَّا أَنْتَ", count:3},
+    {txt:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", count:7},
+    {txt:"رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ ﷺ نَبِيًّا", count:3},
+    {txt:"سَيِّدُ الِاسْتِغْفَارِ: اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", count:1},
+    {txt:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", count:100, virtue:"حُطّت خطاياه وإن كانت مثل زبد البحر"},
+    {txt:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", count:10},
+    {txt:"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", count:100}
+  ]},
+  evening: { title:"أذكار المساء", icon:"moon", items:[
+    {txt:"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", count:1},
+    {txt:"اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ", count:1},
+    {txt:"آيَةُ الْكُرْسِيِّ: اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ", count:1},
+    {txt:"قُلْ هُوَ اللَّهُ أَحَدٌ (سورة الإخلاص كاملة)", count:3},
+    {txt:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (سورة الفلق كاملة)", count:3},
+    {txt:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ (سورة الناس كاملة)", count:3},
+    {txt:"اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَهَ إِلَّا أَنْتَ", count:3},
+    {txt:"اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ وَأُشْهِدُ حَمَلَةَ عَرْشِكَ وَمَلَائِكَتَكَ وَجَمِيعَ خَلْقِكَ أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ", count:4},
+    {txt:"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", count:7},
+    {txt:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", count:3},
+    {txt:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", count:100},
+    {txt:"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", count:100}
+  ]},
+  sleep: { title:"أذكار النوم", icon:"bed", items:[
+    {txt:"بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", count:1},
+    {txt:"آيَةُ الْكُرْسِيِّ كاملة قبل النوم", count:1, virtue:"لا يزال معك من الله حافظ ولا يقربك شيطان حتى تصبح"},
+    {txt:"قُلْ هُوَ اللَّهُ أَحَدٌ، قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ، قُلْ أَعُوذُ بِرَبِّ النَّاسِ ثم مسح بهما ما استطاع من جسده", count:3},
+    {txt:"اللَّهُمَّ رَبَّ السَّمَاوَاتِ وَرَبَّ الْأَرْضِ وَرَبَّ الْعَرْشِ الْعَظِيمِ، رَبَّنَا وَرَبَّ كُلِّ شَيْءٍ، فَالِقَ الْحَبِّ وَالنَّوَى، أَنْتَ إِلَهِي لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ كُلِّ شَيْءٍ أَنْتَ آخِذٌ بِنَاصِيَتِهِ", count:1},
+    {txt:"اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ", count:1},
+    {txt:"سُبْحَانَ اللَّهِ", count:33},
+    {txt:"الْحَمْدُ لِلَّهِ", count:33},
+    {txt:"اللَّهُ أَكْبَرُ", count:34}
+  ]},
+  wake: { title:"أذكار الاستيقاظ", icon:"wake", items:[
+    {txt:"الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", count:1},
+    {txt:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ", count:1},
+    {txt:"الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ", count:1}
+  ]},
+  afterPrayer: { title:"أذكار بعد الصلاة", icon:"prayer", items:[
+    {txt:"أَسْتَغْفِرُ اللَّهَ (ثلاثًا) اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ", count:1},
+    {txt:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", count:1},
+    {txt:"سُبْحَانَ اللَّهِ", count:33},
+    {txt:"الْحَمْدُ لِلَّهِ", count:33},
+    {txt:"اللَّهُ أَكْبَرُ", count:33},
+    {txt:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (تكملة المئة)", count:1},
+    {txt:"آيَةُ الْكُرْسِيِّ", count:1, virtue:"من قرأها دبر كل صلاة لم يمنعه من دخول الجنة إلا أن يموت"}
+  ]},
+  mosque: { title:"دخول المسجد والخروج منه", icon:"mosque", items:[
+    {txt:"عند الدخول: بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", count:1},
+    {txt:"عند الخروج: بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ", count:1}
+  ]},
+  food: { title:"أذكار الطعام", icon:"food", items:[
+    {txt:"قبل الطعام: بِسْمِ اللَّهِ", count:1},
+    {txt:"إن نسي في البداية: بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ", count:1},
+    {txt:"بعد الطعام: الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا، وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ", count:1}
+  ]},
+  travel: { title:"دعاء السفر", icon:"travel", items:[
+    {txt:"اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ", count:1},
+    {txt:"اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى", count:1},
+    {txt:"اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ، وَالْخَلِيفَةُ فِي الْأَهْلِ", count:1}
+  ]},
+  misc: { title:"أذكار متفرقة", icon:"misc", items:[
+    {txt:"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", count:10},
+    {txt:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", count:3},
+    {txt:"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ", count:10},
+    {txt:"عند الكرب: لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ", count:1}
+  ]}
+};
+
+/* ============ DUAS DATA ============ */
+const DUAS = [
+  { cat:"دعاء للوالدين والأموات", txt:"رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِمَنْ دَخَلَ بَيْتِيَ مُؤْمِنًا وَلِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ" },
+  { cat:"دعاء للوالدين والأموات", txt:"اللَّهُمَّ اغْفِرْ لَهَا وَارْحَمْهَا، وَعَافِهَا وَاعْفُ عَنْهَا، وَأَكْرِمْ نُزُلَهَا، وَوَسِّعْ مُدْخَلَهَا، وَاغْسِلْهَا بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ" },
+  { cat:"دعاء للوالدين والأموات", txt:"اللَّهُمَّ أَبْدِلْهُ دَارًا خَيْرًا مِنْ دَارِهِ، وَأَهْلًا خَيْرًا مِنْ أَهْلِهِ، وَأَدْخِلْهُ الْجَنَّةَ، وَأَعِذْهُ مِنْ عَذَابِ الْقَبْرِ وَمِنْ عَذَابِ النَّارِ" },
+  { cat:"دعاء للوالدين والأموات", txt:"رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا الَّذِينَ سَبَقُونَا بِالْإِيمَانِ وَلَا تَجْعَلْ فِي قُلُوبِنَا غِلًّا لِلَّذِينَ آمَنُوا" },
+  { cat:"من القرآن الكريم", txt:"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ" },
+  { cat:"من القرآن الكريم", txt:"رَبِّ اشْرَحْ لِي صَدْرِي، وَيَسِّرْ لِي أَمْرِي" },
+  { cat:"من القرآن الكريم", txt:"رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ الْوَهَّابُ" },
+  { cat:"من القرآن الكريم", txt:"حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ" },
+  { cat:"عند الهم والكرب", txt:"اللَّهُمَّ إِنِّي عَبْدُكَ ابْنُ عَبْدِكَ ابْنُ أَمَتِكَ، نَاصِيَتِي بِيَدِكَ، مَاضٍ فِيَّ حُكْمُكَ، عَدْلٌ فِيَّ قَضَاؤُكَ، أَسْأَلُكَ بِكُلِّ اسْمٍ هُوَ لَكَ" },
+  { cat:"عند الهم والكرب", txt:"لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ" },
+  { cat:"دعاء عام جامع", txt:"اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ" },
+  { cat:"دعاء عام جامع", txt:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى" },
+  { cat:"دعاء عام جامع", txt:"اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا" },
+  { cat:"دعاء عام جامع", txt:"اللَّهُمَّ رَبَّنَا آتِنَا رَحْمَةً مِنْ عِنْدِكَ وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا" }
+];
+
+/* ============ STORAGE HELPERS ============ */
+async function storeGet(key){
+  try{ const r = await window.storage.get(key); return r ? r.value : null; }catch(e){ return null; }
+}
+async function storeSet(key, value){
+  try{ await window.storage.set(key, value); }catch(e){}
+}
+
+/* ============ STATE ============ */
+let state = {
+  progress: {},      // { categoryKey: { doneIndexes: [], remaining: {idx: n} } }
+  tasbihPhraseIdx: 0,
+  tasbihCount: 0,
+  tasbihTarget: 33,
+  tasbihToday: 0,
+  tasbihTotal: 0,
+  todayKey: new Date().toDateString()
+};
+
+const TASBIH_PHRASES = [
+  {label:"سبحان الله", target:33},
+  {label:"الحمد لله", target:33},
+  {label:"الله أكبر", target:34},
+  {label:"لا إله إلا الله", target:100},
+  {label:"أستغفر الله", target:100},
+  {label:"لا حول ولا قوة إلا بالله", target:100},
+  {label:"سبحان الله وبحمده", target:100}
+];
+
+/* ============ INIT ============ */
+async function init(){
+  // restore photo
+  const photo = await storeGet('welcome-photo');
+  if(photo){
+    document.getElementById('photoPlaceholder').style.display='none';
+    const img = document.createElement('img');
+    img.src = photo;
+    document.getElementById('photoFrame').appendChild(img);
+  }
+
+  // restore tasbih totals
+  const savedTotal = await storeGet('tasbih-total');
+  state.tasbihTotal = savedTotal ? parseInt(savedTotal) : 0;
+
+  const savedTodayDate = await storeGet('tasbih-today-date');
+  const savedTodayCount = await storeGet('tasbih-today-count');
+  if(savedTodayDate === state.todayKey && savedTodayCount){
+    state.tasbihToday = parseInt(savedTodayCount);
+  } else {
+    state.tasbihToday = 0;
+    await storeSet('tasbih-today-date', state.todayKey);
+    await storeSet('tasbih-today-count', '0');
+  }
+
+  renderHomeCats();
+  renderNav();
+  renderPhraseScroll();
+  updateTasbihUI();
+  renderDuas();
+  setGreeting();
+}
+
+function setGreeting(){
+  const h = new Date().getHours();
+  const el = document.getElementById('homeGreetTime');
+  if(h < 12) el.textContent = "صباح الخير — تقبل الله أذكارك";
+  else if(h < 18) el.textContent = "طاب يومك بذكر الله";
+  else el.textContent = "مساء الخير — تقبل الله أذكارك";
+}
+
+/* ============ PHOTO UPLOAD (PIN protected) ============ */
+// غيّر هذا الرقم إلى أي رقم سري تريده أنت فقط
+const OWNER_PIN = "2580";
+
+document.getElementById('photoFrame').addEventListener('click', ()=>{
+  const entered = prompt('أدخل الرقم السري لتغيير الصورة:');
+  if(entered === null) return; // ألغى المستخدم
+  if(entered === OWNER_PIN){
+    document.getElementById('photoInput').click();
+  } else {
+    alert('الرقم السري غير صحيح، لا يمكنك تغيير هذه الصورة.');
+  }
+});
+document.getElementById('photoInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(ev){
+    const dataUrl = ev.target.result;
+    document.getElementById('photoPlaceholder').style.display='none';
+    let img = document.querySelector('#photoFrame img');
+    if(!img){ img = document.createElement('img'); document.getElementById('photoFrame').appendChild(img); }
+    img.src = dataUrl;
+    await storeSet('welcome-photo', dataUrl);
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ============ NAVIGATION ============ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ showScreen('home'); setActiveNav('home'); }
+
+document.getElementById('enterBtn').addEventListener('click', ()=>{ showScreen('home'); });
+
+const NAV_ITEMS = [
+  {id:'home', label:'الرئيسية', icon:'home'},
+  {id:'athkarHub', label:'الأذكار', icon:'athkar'},
+  {id:'tasbih', label:'التسبيح', icon:'tasbih'},
+  {id:'duas', label:'الأدعية', icon:'dua'}
+];
+function renderNav(){
+  ['nav1','nav2','nav3'].forEach(navId=>{
+    const nav = document.getElementById(navId);
+    if(!nav) return;
+    nav.innerHTML = NAV_ITEMS.map(n=>`
+      <div class="nav-item" data-target="${n.id}">
+        ${ICONS[n.icon]}
+        <span>${n.label}</span>
+      </div>`).join('');
+    nav.querySelectorAll('.nav-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const t = el.getAttribute('data-target');
+        if(t === 'athkarHub'){ showScreen('home'); setActiveNav('athkarHub'); document.getElementById('homeCatsMain').scrollIntoView({behavior:'smooth'}); }
+        else { showScreen(t); setActiveNav(t); }
+      });
+    });
+  });
+  setActiveNav('home');
+}
+function setActiveNav(id){
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active', el.getAttribute('data-target') === id);
+  });
+}
+
+/* ============ HOME CATEGORY CARDS ============ */
+const MAIN_CATS = ['morning','evening','sleep','wake'];
+const MISC_CATS = ['afterPrayer','mosque','food','travel','misc'];
+
+function catCardHtml(key){
+  const c = ATHKAR[key];
+  const count = c.items.length;
+  return `<div class="cat-card" onclick="openCategory('${key}')">
+    <div class="icon">${ICONS[c.icon]}</div>
+    <div class="title">${c.title}</div>
+    <div class="sub">${count} أذكار</div>
+  </div>`;
+}
+function renderHomeCats(){
+  document.getElementById('homeCatsMain').innerHTML = MAIN_CATS.map(catCardHtml).join('');
+  document.getElementById('homeCatsMisc').innerHTML = MISC_CATS.map(catCardHtml).join('');
+}
+
+/* ============ CATEGORY SCREEN ============ */
+let currentCat = null;
+async function openCategory(key){
+  currentCat = key;
+  const cat = ATHKAR[key];
+  document.getElementById('categoryTitle').textContent = cat.title;
+
+  let saved = await storeGet('progress:'+key+':'+state.todayKey);
+  let remaining;
+  if(saved){
+    remaining = JSON.parse(saved);
+  } else {
+    remaining = cat.items.map(it => it.count);
+  }
+  state.progress[key] = remaining;
+
+  renderCategoryContent(key);
+  showScreen('category');
+}
+
+function renderCategoryContent(key){
+  const cat = ATHKAR[key];
+  const remaining = state.progress[key];
+  const done = remaining.filter(r=>r<=0).length;
+  const total = cat.items.length;
+  const pct = Math.round((done/total)*100);
+  const circumference = 2*Math.PI*20;
+
+  let html = `
+    <div class="progress-wrap">
+      <div class="progress-ring">
+        <svg viewBox="0 0 46 46">
+          <circle class="bg" cx="23" cy="23" r="20"></circle>
+          <circle class="fg" cx="23" cy="23" r="20" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference - (pct/100)*circumference}"></circle>
+        </svg>
+        <div class="num">${pct}%</div>
+      </div>
+      <div class="progress-text">أنجزت <b>${done}</b> من <b>${total}</b> أذكار<br>اضغط على كل ذكر لعدّه</div>
+    </div>
+    <div class="finish-banner ${done===total ? 'show':''}" id="finishBanner">
+      <div class="big">تقبل الله منك</div>
+      <p>أتممت جميع أذكار هذا القسم اليوم</p>
+    </div>
+  `;
+
+  cat.items.forEach((item, idx)=>{
+    const rem = remaining[idx];
+    const isDone = rem <= 0;
+    html += `
+      <div class="thikr-card ${isDone?'done':''}" onclick="tapThikr('${key}', ${idx})">
+        <div class="txt">${item.txt}</div>
+        <div class="meta">
+          <div class="virtue">${item.virtue ? item.virtue : ''}</div>
+          <div class="count-pill">${isDone ? '✓' : rem}</div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('category-content').innerHTML = html;
+}
+
+async function tapThikr(key, idx){
+  const remaining = state.progress[key];
+  if(remaining[idx] > 0){
+    remaining[idx] -= 1;
+    if(navigator.vibrate) navigator.vibrate(10);
+  }
+  await storeSet('progress:'+key+':'+state.todayKey, JSON.stringify(remaining));
+  renderCategoryContent(key);
+}
+
+/* ============ TASBIH ============ */
+function renderPhraseScroll(){
+  document.getElementById('phraseScroll').innerHTML = TASBIH_PHRASES.map((p,i)=>`
+    <div class="phrase-chip ${i===state.tasbihPhraseIdx?'active':''}" data-idx="${i}">${p.label}</div>
+  `).join('');
+  document.querySelectorAll('.phrase-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      state.tasbihPhraseIdx = parseInt(chip.getAttribute('data-idx'));
+      state.tasbihCount = 0;
+      state.tasbihTarget = TASBIH_PHRASES[state.tasbihPhraseIdx].target;
+      renderPhraseScroll();
+      updateTasbihUI();
+    });
+  });
+  state.tasbihTarget = TASBIH_PHRASES[state.tasbihPhraseIdx].target;
+}
+
+function updateTasbihUI(){
+  document.getElementById('countNum').textContent = state.tasbihCount;
+  document.getElementById('tasbihTargetLabel').textContent = `${TASBIH_PHRASES[state.tasbihPhraseIdx].label} — الهدف: ${state.tasbihTarget}`;
+  document.getElementById('statToday').textContent = state.tasbihToday;
+  document.getElementById('statTotal').textContent = state.tasbihTotal;
+
+  const circumference = 2*Math.PI*100;
+  const pct = Math.min(state.tasbihCount / state.tasbihTarget, 1);
+  const fg = document.getElementById('ringFg');
+  fg.setAttribute('stroke-dasharray', circumference);
+  fg.setAttribute('stroke-dashoffset', circumference - pct*circumference);
+}
+
+document.getElementById('counterBtn').addEventListener('click', async ()=>{
+  state.tasbihCount += 1;
+  state.tasbihToday += 1;
+  state.tasbihTotal += 1;
+  if(navigator.vibrate) navigator.vibrate(state.tasbihCount % state.tasbihTarget === 0 ? [20,40,20] : 8);
+  updateTasbihUI();
+  await storeSet('tasbih-today-count', String(state.tasbihToday));
+  await storeSet('tasbih-total', String(state.tasbihTotal));
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.tasbihCount = 0;
+  updateTasbihUI();
+});
+
+document.getElementById('targetBtn').addEventListener('click', ()=>{
+  const val = prompt('أدخل الهدف الجديد للعدّاد:', state.tasbihTarget);
+  const num = parseInt(val);
+  if(num && num > 0){
+    state.tasbihTarget = num;
+    state.tasbihCount = 0;
+    updateTasbihUI();
+  }
+});
+
+/* ============ DUAS ============ */
+function renderDuas(){
+  const grouped = {};
+  DUAS.forEach(d=>{
+    if(!grouped[d.cat]) grouped[d.cat] = [];
+    grouped[d.cat].push(d.txt);
+  });
+  let html = '';
+  Object.keys(grouped).forEach(cat=>{
+    html += `<div class="section-label">${cat}</div>`;
+    grouped[cat].forEach(txt=>{
+      html += `<div class="dua-card"><span class="cat-tag">${cat}</span><div class="txt">${txt}</div></div>`;
+    });
+  });
+  document.getElementById('dua-content').innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>
